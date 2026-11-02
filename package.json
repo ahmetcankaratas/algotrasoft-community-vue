@@ -16,7 +16,10 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@tsparticles/engine": "^4.5.0",
+    "@tsparticles/vue3": "^4.5.0",
     "pinia": "^4.0.3",
+    "tsparticles": "^4.5.0",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
   },

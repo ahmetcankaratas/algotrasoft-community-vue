@@ -1,9 +1,12 @@
 <template>
   <AppLayout>
-    <h1 class="text-3xl font-bold underline">Hello world!</h1>
+    <HomeParticles />
+    <HomeHero />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import AppLayout from '@/components/layout/AppLayout.vue'
+import HomeParticles from '@/components/home/HomeParticles.vue'
+import HomeHero from '@/components/home/HomeHero.vue'
 </script>

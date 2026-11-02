@@ -11,7 +11,10 @@ const router = createRouter({
 
 describe('HomeView', () => {
   it('should create', () => {
-    const wrapper = mount(HomeView, { global: { plugins: [router] } })
+    const wrapper = mount(HomeView, {
+      global: { plugins: [router], stubs: { VueParticles: true } },
+    })
     expect(wrapper.exists()).toBe(true)
+    expect(wrapper.find('#hero').exists()).toBe(true)
   })
 })

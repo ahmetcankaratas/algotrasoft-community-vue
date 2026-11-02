@@ -9,9 +9,11 @@ describe('App', () => {
     await router.push('/')
     await router.isReady()
 
-    const wrapper = mount(App, { global: { plugins: [router] } })
+    const wrapper = mount(App, {
+      global: { plugins: [router], stubs: { VueParticles: true } },
+    })
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Hello world!')
+    expect(wrapper.find('#hero').exists()).toBe(true)
   })
 })
