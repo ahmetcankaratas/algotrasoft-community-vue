@@ -49,10 +49,13 @@
             results. You can then download the code and run it on your own machine. You can also use
             the code as a starting point for your own algorithmic trading strategy. To see the
             scanner in action
-            <a href="/scanner#scanner" class="border-accentCyan text-accentCyan border-b">
+            <RouterLink
+              :to="{ path: '/scanner', hash: '#scanner' }"
+              class="border-accentCyan text-accentCyan border-b"
+            >
               Click
               <img src="@/assets/images/icon-arrow.svg" alt="" class="ml-2 inline pb-1" />
-            </a>
+            </RouterLink>
           </p>
         </div>
       </div>
@@ -60,4 +63,6 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+</script>

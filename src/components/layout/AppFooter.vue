@@ -13,12 +13,12 @@
           class="flex flex-col space-y-10 text-xl md:flex-row md:space-y-0 md:space-x-20 md:text-base"
         >
           <div class="f-nav flex flex-col space-y-3">
-            <RouterLink to="/#navbar">Home</RouterLink>
-            <RouterLink to="/#about-us">About Us</RouterLink>
-            <RouterLink to="/#work">How We Work</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#navbar' }">Home</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#about-us' }">About Us</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#work' }">How We Work</RouterLink>
           </div>
           <div class="f-nav flex flex-col space-y-3">
-            <RouterLink to="/scanner#scanner">Scanner</RouterLink>
+            <RouterLink :to="{ path: '/scanner', hash: '#scanner' }">Scanner</RouterLink>
             <RouterLink to="/contact">Contact</RouterLink>
           </div>
         </div>
