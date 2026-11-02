@@ -6,6 +6,13 @@
       <RouterLink to="/" class="hover:text-accentCyan">Home</RouterLink>
       <RouterLink to="/scanner" class="hover:text-accentCyan tracking-widest">Scanner</RouterLink>
       <RouterLink to="/contact" class="hover:text-accentCyan tracking-widest">Contact</RouterLink>
+      <span>|</span>
+      <RouterLink to="/login" class="hover:text-accentCyan tracking-widest">Login</RouterLink>
+      <RouterLink
+        to="/signup"
+        class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
+        >Sign Up</RouterLink
+      >
       <button
         id="theme-toggle"
         class="rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-gray-700"

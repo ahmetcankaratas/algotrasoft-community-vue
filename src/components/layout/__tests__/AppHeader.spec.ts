@@ -14,6 +14,8 @@ function createTestRouter(): Router {
       { path: '/', component: Stub },
       { path: '/scanner', component: Stub },
       { path: '/contact', component: Stub },
+      { path: '/login', component: Stub },
+      { path: '/signup', component: Stub },
     ],
   })
 }
@@ -36,9 +38,11 @@ describe('AppHeader', () => {
     const wrapper = mount(AppHeader, { global: { plugins: [router] } })
     const links = wrapper.findAll('a')
 
-    expect(links.map((l) => l.text())).toEqual(['Home', 'Scanner', 'Contact'])
+    expect(links.map((l) => l.text())).toEqual(['Home', 'Scanner', 'Contact', 'Login', 'Sign Up'])
     expect(links[0]!.classes()).not.toContain('active')
     expect(links[1]!.classes()).toContain('active')
     expect(links[2]!.classes()).not.toContain('active')
+    expect(links[3]!.classes()).not.toContain('active')
+    expect(links[4]!.classes()).not.toContain('active')
   })
 })
