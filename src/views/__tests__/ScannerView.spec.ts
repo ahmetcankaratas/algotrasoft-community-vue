@@ -12,6 +12,6 @@ const router = createRouter({
 describe('ScannerView', () => {
   it('should create', () => {
     const wrapper = mount(ScannerView, { global: { plugins: [router] } })
-    expect(wrapper.text()).toContain('Selam')
+    expect(wrapper.find('h1').text()).toBe('Scanner')
   })
 })

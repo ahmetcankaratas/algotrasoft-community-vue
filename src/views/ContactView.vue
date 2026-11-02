@@ -1,5 +1,6 @@
 <template>
   <AppLayout>
+    <PageCover header="Contact" description="Join Us" />
     <div class="container mx-auto px-6 pt-12 pb-80 md:pb-96">
       <div
         class="dark:bg-darkBlue1 container mx-auto max-w-4xl space-y-6 rounded-lg bg-gray-200 p-10 px-6 text-center md:px-16"
@@ -24,4 +25,5 @@
 
 <script setup lang="ts">
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PageCover from '@/components/PageCover.vue'
 </script>
