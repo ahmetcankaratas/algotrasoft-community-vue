@@ -1,5 +1,9 @@
-<script setup lang="ts"></script>
-
 <template>
-  <h1 class="text-3xl font-bold underline">Hello world!</h1>
+  <AppLayout>
+    <h1 class="text-3xl font-bold underline">Hello world!</h1>
+  </AppLayout>
 </template>
+
+<script setup lang="ts">
+import AppLayout from './components/layout/AppLayout.vue'
+</script>
