@@ -13,7 +13,7 @@ describe('AppLayout', () => {
   it('renders default header and footer', () => {
     const wrapper = mount(AppLayout, { global: { plugins: [router] } })
     expect(wrapper.find('#navbar').exists()).toBe(true)
-    expect(wrapper.text()).toContain('footer works!')
+    expect(wrapper.find('footer').exists()).toBe(true)
   })
 
   it('renders the default slot as the main area', () => {

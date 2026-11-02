@@ -12,6 +12,15 @@
 
   --font-sans: 'Raleway', sans-serif;
   --font-opensans: 'Open Sans', sans-serif;
+
+  --background-image-scanner-cover: url('./images/peaks.svg');
+  --background-image-scanner-cover-light: url('./images/light-peaks.svg');
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 footer a:hover {

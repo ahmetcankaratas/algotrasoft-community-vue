@@ -2,6 +2,8 @@
   <AppLayout>
     <HomeParticles />
     <HomeHero />
+    <HomeAbout />
+    <HomeWork />
   </AppLayout>
 </template>
 
@@ -9,4 +11,6 @@
 import AppLayout from '@/components/layout/AppLayout.vue'
 import HomeParticles from '@/components/home/HomeParticles.vue'
 import HomeHero from '@/components/home/HomeHero.vue'
+import HomeAbout from '@/components/home/HomeAbout.vue'
+import HomeWork from '@/components/home/HomeWork.vue'
 </script>
