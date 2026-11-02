@@ -1,9 +1,7 @@
 <template>
-  <AppLayout>
-    <h1 class="text-3xl font-bold underline">Hello world!</h1>
-  </AppLayout>
+  <RouterView />
 </template>
 
 <script setup lang="ts">
-import AppLayout from './components/layout/AppLayout.vue'
+import { RouterView } from 'vue-router'
 </script>

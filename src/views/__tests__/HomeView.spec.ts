@@ -1,0 +1,17 @@
+import { describe, it, expect } from 'vitest'
+
+import { mount } from '@vue/test-utils'
+import { createRouter, createMemoryHistory } from 'vue-router'
+import HomeView from '../HomeView.vue'
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/', component: HomeView }],
+})
+
+describe('HomeView', () => {
+  it('should create', () => {
+    const wrapper = mount(HomeView, { global: { plugins: [router] } })
+    expect(wrapper.exists()).toBe(true)
+  })
+})

@@ -13,3 +13,14 @@
   --font-sans: 'Raleway', sans-serif;
   --font-opensans: 'Open Sans', sans-serif;
 }
+
+footer a:hover {
+  filter: invert(80%) sepia(37%) saturate(7048%) hue-rotate(132deg) brightness(105%) contrast(104%);
+  color: #202a3c;
+}
+
+#navbar a.active {
+  color: var(--color-darkCyan);
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
