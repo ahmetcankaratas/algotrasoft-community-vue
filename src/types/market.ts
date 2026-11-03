@@ -6,7 +6,5 @@ export interface MarketResponseResult {
 }
 
 export interface MarketResponse {
-  data: {
-    stocks: MarketResponseResult[]
-  }
+  stocks: MarketResponseResult[]
 }

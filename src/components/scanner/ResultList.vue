@@ -7,8 +7,9 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import ResultItem from './ResultItem.vue'
-import { getResults } from '@/services/results'
+import { useResultsStore } from '@/stores/results'
 
-const results = getResults()
+const { results } = storeToRefs(useResultsStore())
 </script>

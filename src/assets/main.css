@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
-@plugin 'tailwind-scrollbar';
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
 
 @theme {
   --color-darkBlue: hsl(217, 28%, 15%);
