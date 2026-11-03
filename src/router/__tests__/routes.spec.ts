@@ -62,4 +62,11 @@ describe('router', () => {
     expect(router.currentRoute.value.name).toBe('details')
     expect(router.currentRoute.value.params).toEqual({ id: '0' })
   })
+
+  it('shows the not-found page for an unknown path', async () => {
+    await router.push('/no/such/page')
+
+    expect(router.currentRoute.value.name).toBe('not-found')
+    expect(router.currentRoute.value.path).toBe('/no/such/page')
+  })
 })

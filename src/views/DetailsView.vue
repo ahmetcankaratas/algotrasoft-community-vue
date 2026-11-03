@@ -1,21 +1,27 @@
 <template>
   <AppLayout>
-    <PageCover :header="details?.name" description="Result Details" />
-    <div class="container mx-auto px-6 pt-12 pb-20 md:pb-24">
-      <div
-        v-if="isLoading"
-        class="dark:bg-darkBlue3 flex h-28 w-full items-center justify-center rounded-lg bg-gray-100 p-4"
-      >
-        <LoadingSpinner />
-      </div>
-      <ResultDetails v-if="!isLoading && details" :details="details" />
+    <template v-if="notFound">
+      <PageCover header="Not Found" />
       <BackButton />
-    </div>
+    </template>
+    <template v-else>
+      <PageCover :header="details?.name" description="Result Details" />
+      <div class="container mx-auto px-6 pt-12 pb-20 md:pb-24">
+        <div
+          v-if="isLoading"
+          class="dark:bg-darkBlue3 flex h-28 w-full items-center justify-center rounded-lg bg-gray-100 p-4"
+        >
+          <LoadingSpinner />
+        </div>
+        <ResultDetails v-if="details" :details="details" />
+        <BackButton />
+      </div>
+    </template>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppLayout from '@/components/layout/AppLayout.vue'
@@ -30,6 +36,7 @@ const route = useRoute()
 const resultsStore = useResultsStore()
 const { details } = storeToRefs(resultsStore)
 const isLoading = ref(true)
+const notFound = computed(() => !isLoading.value && details.value === null)
 
 async function loadDetails(id: number) {
   isLoading.value = true

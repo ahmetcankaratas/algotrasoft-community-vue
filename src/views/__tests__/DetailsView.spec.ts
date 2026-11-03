@@ -106,8 +106,20 @@ describe('DetailsView', () => {
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
+    expect(wrapper.find('h1').text()).toBe('Not Found')
     expect(useResultsStore().details).toBeNull()
     expect(consoleError).toHaveBeenCalledWith(failure)
     consoleError.mockRestore()
+  })
+
+  it('shows the Not Found cover when the database has no entry for the id', async () => {
+    getBacktestMock.mockResolvedValue(null)
+    const wrapper = await mountDetails(99)
+    await flushPromises()
+
+    expect(wrapper.find('h1').text()).toBe('Not Found')
+    expect(wrapper.find('p.text-darkCyan').text()).toBe('')
+    expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
+    expect(wrapper.findComponent(BackButton).exists()).toBe(true)
   })
 })
