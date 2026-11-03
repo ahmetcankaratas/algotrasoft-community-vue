@@ -4,6 +4,8 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import AppHeader from '../AppHeader.vue'
+import ThemeToggle from '../ThemeToggle.vue'
+import HamburgerButton from '../HamburgerButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 
@@ -115,19 +117,50 @@ describe('AppHeader', () => {
       'Sign Up',
     ])
   })
-  it('shows the moon icon in light mode and the sun icon in dark mode', async () => {
+  it('renders a theme toggle for desktop and one for mobile', async () => {
     await router.push('/')
     const wrapper = mountHeader()
-    const moon = wrapper.find('#theme-toggle-dark-icon')
-    const sun = wrapper.find('#theme-toggle-light-icon')
+    const toggles = wrapper.findAllComponents(ThemeToggle)
 
-    expect(moon.classes()).toContain('hidden')
-    expect(sun.classes()).not.toContain('hidden')
+    expect(toggles).toHaveLength(2)
+    expect(toggles[1]!.classes()).toContain('sm:hidden')
 
-    await wrapper.find('#theme-toggle').trigger('click')
-
+    await toggles[0]!.find('button').trigger('click')
     expect(useThemeStore().theme).toBe('light')
-    expect(moon.classes()).not.toContain('hidden')
-    expect(sun.classes()).toContain('hidden')
+  })
+
+  it('keeps the mobile menu closed until the hamburger button is clicked', async () => {
+    await router.push('/')
+    const wrapper = mountHeader()
+
+    expect(wrapper.find('#menu').exists()).toBe(false)
+
+    await wrapper.findComponent(HamburgerButton).trigger('click')
+
+    expect(wrapper.find('#menu').exists()).toBe(true)
+    expect(wrapper.findAll('#menu a').map((l) => l.text())).toEqual([
+      'Home',
+      'Contact',
+      'Login',
+      'Sign Up',
+    ])
+
+    await wrapper.findComponent(HamburgerButton).trigger('click')
+    expect(wrapper.find('#menu').exists()).toBe(false)
+  })
+
+  it('offers Logout and Scanner in the mobile menu when logged in', async () => {
+    authenticate()
+    await router.push('/')
+    const wrapper = mountHeader()
+    await wrapper.findComponent(HamburgerButton).trigger('click')
+
+    expect(wrapper.findAll('#menu a').map((l) => l.text())).toEqual(['Home', 'Contact', 'Scanner'])
+    const logout = wrapper.findAll('#menu button').find((b) => b.text() === 'Logout')
+    expect(logout).toBeDefined()
+
+    await logout!.trigger('click')
+    await flushPromises()
+    expect(useAuthStore().isAuthenticated).toBe(false)
   })
 })

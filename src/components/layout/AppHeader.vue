@@ -1,7 +1,7 @@
 <template>
   <header id="navbar" class="container mx-auto mt-10 h-40 px-6 text-center md:h-20">
     <div
-      class="top-12 right-12 flex items-center justify-center space-x-4 md:absolute md:space-x-10"
+      class="top-12 right-12 hidden items-center justify-center space-x-4 sm:flex md:absolute md:space-x-10"
     >
       <RouterLink to="/" class="hover:text-accentCyan">Home</RouterLink>
       <RouterLink to="/contact" class="hover:text-accentCyan tracking-widest">Contact</RouterLink>
@@ -36,52 +36,70 @@
         class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
         >Scanner</RouterLink
       >
-      <button
-        id="theme-toggle"
-        type="button"
-        class="rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-gray-700"
-        @click="themeStore.toggleTheme()"
-      >
-        <svg
-          id="theme-toggle-dark-icon"
-          class="h-5 w-5"
-          :class="{ hidden: isDark }"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-        </svg>
+      <ThemeToggle class="p-2" />
+    </div>
 
-        <svg
-          id="theme-toggle-light-icon"
-          class="h-5 w-5"
-          :class="{ hidden: !isDark }"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
+    <HamburgerButton v-model="isMenuOpen" class="float-right block sm:hidden" />
+    <ThemeToggle class="float-left block p-0 sm:hidden" />
+
+    <div
+      v-if="isMenuOpen"
+      id="menu"
+      class="bg-darkBlue absolute top-20 right-6 left-6 z-10 h-3/4 rounded-lg p-6 dark:bg-white"
+    >
+      <div
+        class="flex w-full flex-col items-center justify-center space-y-6 rounded font-bold text-white dark:text-black"
+      >
+        <RouterLink to="/" class="hover:text-accentCyan w-full">Home</RouterLink>
+        <RouterLink to="/contact" class="hover:text-accentCyan w-full tracking-widest"
+          >Contact</RouterLink
         >
-          <path
-            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-      </button>
+        <RouterLink
+          v-if="!isAuthenticated"
+          to="/auth/login"
+          class="hover:text-accentCyan w-full border-t border-gray-400 pt-6 text-center tracking-widest"
+          >Login</RouterLink
+        >
+        <button
+          v-else
+          type="button"
+          class="hover:text-accentCyan w-full border-t border-gray-400 pt-6 text-center tracking-widest hover:cursor-pointer"
+          @click="onLogout"
+        >
+          Logout
+        </button>
+        <RouterLink
+          v-if="!isAuthenticated"
+          to="/auth/signup"
+          active-class=""
+          exact-active-class=""
+          class="bg-darkCyan hover:bg-accentCyan w-full rounded-full px-8 py-3 tracking-widest hover:opacity-70"
+          >Sign Up</RouterLink
+        >
+        <RouterLink
+          v-else
+          to="/scanner"
+          active-class=""
+          exact-active-class=""
+          class="bg-darkCyan hover:bg-accentCyan w-full rounded-full px-8 py-3 tracking-widest hover:opacity-70"
+          >Scanner</RouterLink
+        >
+      </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ThemeToggle from './ThemeToggle.vue'
+import HamburgerButton from './HamburgerButton.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useThemeStore } from '@/stores/theme'
 
 const authStore = useAuthStore()
-const themeStore = useThemeStore()
 const { isAuthenticated } = storeToRefs(authStore)
-const { isDark } = storeToRefs(themeStore)
+const isMenuOpen = ref(false)
 
 function onLogout() {
   authStore.logout()
