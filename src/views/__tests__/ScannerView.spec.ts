@@ -88,17 +88,14 @@ describe('ScannerView', () => {
     expect(wrapper.findAll('ul > li')).toHaveLength(3)
   })
 
-  it('stops loading and logs the error when the request fails', async () => {
-    const failure = new Error('Request failed with status code 401')
-    getStocksMock.mockRejectedValue(failure)
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('stops loading and shows the error when the request fails', async () => {
+    getStocksMock.mockRejectedValue(new Error('Request failed with status code 401'))
     const wrapper = mountScanner()
     await flushPromises()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.findAll('ul > li')).toHaveLength(0)
-    expect(consoleError).toHaveBeenCalledWith(failure)
-    consoleError.mockRestore()
+    expect(wrapper.find('[role="alert"]').text()).toBe('Request failed with status code 401')
   })
 
   it('filters the list by the typed stock name', async () => {

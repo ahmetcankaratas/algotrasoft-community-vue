@@ -7,7 +7,6 @@ import DetailsView from '../DetailsView.vue'
 import ResultDetails from '@/components/scanner/ResultDetails.vue'
 import BackButton from '@/components/BackButton.vue'
 import { getBacktest } from '@/services/dataStorage'
-import { useResultsStore } from '@/stores/results'
 
 vi.mock('@/services/dataStorage', () => ({
   getBacktest: vi.fn<typeof getBacktest>(),
@@ -67,13 +66,18 @@ describe('DetailsView', () => {
     expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
   })
 
-  it('clears the previous details before loading the next ones', async () => {
-    useResultsStore().setDetails({ ...backtest, name: 'Previous stock' })
+  it('clears the previous details while the next ones load', async () => {
+    const wrapper = await mountDetails(0)
+    await flushPromises()
+    expect(wrapper.find('h1').text()).toBe('Green Plains, Inc.')
+
     getBacktestMock.mockReturnValue(new Promise(() => {}))
-    const wrapper = await mountDetails()
+    await router.push('/scanner/1')
+    await flushPromises()
 
     expect(wrapper.find('h1').text()).toBe('')
-    expect(useResultsStore().details).toBeNull()
+    expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
+    expect(wrapper.find('.lds-ring').exists()).toBe(true)
   })
 
   it('fetches the backtest for the route id and shows the details', async () => {
@@ -81,7 +85,6 @@ describe('DetailsView', () => {
     await flushPromises()
 
     expect(getBacktestMock).toHaveBeenCalledWith(0)
-    expect(useResultsStore().details).toEqual(backtest)
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.find('h1').text()).toBe('Green Plains, Inc.')
     expect(wrapper.findComponent(ResultDetails).props('details')).toEqual(backtest)
@@ -97,19 +100,16 @@ describe('DetailsView', () => {
     expect(getBacktestMock).toHaveBeenNthCalledWith(2, 1)
   })
 
-  it('stops loading and logs the error when the request fails', async () => {
-    const failure = new Error('Request failed with status code 401')
-    getBacktestMock.mockRejectedValue(failure)
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('shows the error cover when the request fails', async () => {
+    getBacktestMock.mockRejectedValue(new Error('Request failed with status code 401'))
     const wrapper = await mountDetails()
     await flushPromises()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
-    expect(wrapper.find('h1').text()).toBe('Not Found')
-    expect(useResultsStore().details).toBeNull()
-    expect(consoleError).toHaveBeenCalledWith(failure)
-    consoleError.mockRestore()
+    expect(wrapper.find('h1').text()).toBe('Something went wrong')
+    expect(wrapper.find('p.text-darkCyan').text()).toBe('Request failed with status code 401')
+    expect(wrapper.findComponent(BackButton).exists()).toBe(true)
   })
 
   it('shows the Not Found cover when the database has no entry for the id', async () => {

@@ -4,6 +4,10 @@
       <PageCover header="Not Found" />
       <BackButton />
     </template>
+    <template v-else-if="error">
+      <PageCover header="Something went wrong" :description="error" />
+      <BackButton />
+    </template>
     <template v-else>
       <PageCover :header="details?.name" description="Result Details" />
       <div class="container mx-auto px-6 pt-12 pb-20 md:pb-24">
@@ -23,32 +27,26 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PageCover from '@/components/PageCover.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import BackButton from '@/components/BackButton.vue'
 import ResultDetails from '@/components/scanner/ResultDetails.vue'
 import { getBacktest } from '@/services/dataStorage'
-import { useResultsStore } from '@/stores/results'
+import { useRequestStatus } from '@/composables/useRequestStatus'
+import type { BacktestDetails } from '@/types/backtest'
 
 const route = useRoute()
-const resultsStore = useResultsStore()
-const { details } = storeToRefs(resultsStore)
-const isLoading = ref(true)
-const notFound = computed(() => !isLoading.value && details.value === null)
+const details = ref<BacktestDetails | null>(null)
+const { isLoading, error, run } = useRequestStatus()
+const notFound = computed(() => !isLoading.value && !error.value && details.value === null)
 
 async function loadDetails(id: number) {
-  isLoading.value = true
   // Drop the previous stock so its name does not show in the cover while the next one loads.
-  resultsStore.setDetails(null)
-  try {
-    resultsStore.setDetails(await getBacktest(id))
-  } catch (error) {
-    console.error(error)
-  } finally {
-    isLoading.value = false
-  }
+  details.value = null
+  await run(async () => {
+    details.value = await getBacktest(id)
+  })
 }
 
 // Re-fetch when the id changes while this view stays mounted (e.g. /scanner/0 -> /scanner/1).

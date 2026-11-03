@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios'
+import { UNKNOWN_ERROR_MESSAGE } from '@/utils/errors'
 import { http } from './http'
 
 export interface AuthResponseData {
@@ -22,8 +23,6 @@ const ERROR_MESSAGES: Record<string, string> = {
   EMAIL_NOT_FOUND: 'This email does not exist!',
   INVALID_PASSWORD: 'This password is not correct!',
 }
-
-const UNKNOWN_ERROR_MESSAGE = 'An unknown error occurred!'
 
 function toAuthError(error: unknown): Error {
   const code = isAxiosError<AuthErrorBody>(error) ? error.response?.data?.error?.message : undefined

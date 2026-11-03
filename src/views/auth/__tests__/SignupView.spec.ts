@@ -45,7 +45,6 @@ async function fillValidForm(wrapper: VueWrapper) {
 
 describe('SignupView', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
     signupMock.mockReset()
     signupMock.mockResolvedValue(response)
   })
@@ -97,7 +96,6 @@ describe('SignupView', () => {
     await flushPromises()
 
     expect(signupMock).toHaveBeenCalledWith('ahmet@example.com', 'secret1')
-    expect(console.log).toHaveBeenCalledWith(response)
     expect((wrapper.find('#firstName').element as HTMLInputElement).value).toBe('')
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
     expect(router.currentRoute.value.path).toBe('/scanner')
@@ -135,7 +133,6 @@ describe('SignupView', () => {
     expect(alert.classes()).toContain('bg-red-300')
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.find('form').exists()).toBe(true)
-    expect(console.log).toHaveBeenCalledWith('This email exists already!')
     expect(router.currentRoute.value.path).not.toBe('/scanner')
   })
 

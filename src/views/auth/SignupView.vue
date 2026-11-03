@@ -2,13 +2,7 @@
   <AppLayout>
     <section class="dark:bg-darkBlue bg-gray-50">
       <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
-        <div
-          v-if="error"
-          role="alert"
-          class="my-4 rounded-lg bg-red-300 px-5 py-2.5 text-center text-sm font-medium text-white"
-        >
-          <p>{{ error }}</p>
-        </div>
+        <ErrorAlert v-if="error" :message="error" />
         <div v-if="isLoading">
           <LoadingSpinner />
         </div>
@@ -136,11 +130,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import ErrorAlert from '@/components/ErrorAlert.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 import { isEmail, isPassword } from '@/utils/validation'
 
 const router = useRouter()
@@ -151,8 +147,7 @@ const untouched = () => ({ firstName: false, lastName: false, email: false, pass
 
 const form = reactive(emptyForm())
 const touched = reactive(untouched())
-const isLoading = ref(false)
-const error = ref<string | null>(null)
+const { isLoading, error, run } = useRequestStatus()
 
 const errors = computed(() => ({
   firstName: form.firstName.trim() === '',
@@ -168,22 +163,13 @@ async function onSubmit() {
     return
   }
 
-  isLoading.value = true
-  error.value = null
-  const request = authStore.signup(form.email, form.password)
-
+  const { email, password } = form
   Object.assign(form, emptyForm())
   Object.assign(touched, untouched())
 
-  try {
-    console.log(await request)
+  await run(async () => {
+    await authStore.signup(email, password)
     await router.push('/scanner')
-  } catch (failure) {
-    const message = failure instanceof Error ? failure.message : 'An unknown error occurred!'
-    console.log(message)
-    error.value = message
-  } finally {
-    isLoading.value = false
-  }
+  })
 }
 </script>

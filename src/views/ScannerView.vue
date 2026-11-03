@@ -8,6 +8,7 @@
       >
         <LoadingSpinner />
       </div>
+      <ErrorAlert v-if="error" :message="error" />
       <ScannerSearch v-if="!isLoading" v-model="searchQuery" />
       <ResultList :query="searchQuery" />
     </div>
@@ -19,24 +20,22 @@ import { ref } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PageCover from '@/components/PageCover.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import ErrorAlert from '@/components/ErrorAlert.vue'
 import ScannerSearch from '@/components/scanner/ScannerSearch.vue'
 import ResultList from '@/components/scanner/ResultList.vue'
 import { getStocks } from '@/services/dataStorage'
 import { useResultsStore } from '@/stores/results'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 
 const resultsStore = useResultsStore()
-const isLoading = ref(true)
+const { isLoading, error, run } = useRequestStatus()
 const searchQuery = ref('')
 
 async function loadResults() {
-  try {
+  await run(async () => {
     const { stocks } = await getStocks()
     resultsStore.setResults(stocks)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    isLoading.value = false
-  }
+  })
 }
 
 loadResults()

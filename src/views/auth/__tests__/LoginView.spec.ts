@@ -44,7 +44,6 @@ async function fillValidForm(wrapper: VueWrapper) {
 
 describe('LoginView', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
     loginMock.mockReset()
     loginMock.mockResolvedValue(response)
   })
@@ -64,7 +63,6 @@ describe('LoginView', () => {
     expect(wrapper.text()).toContain('Please fill all areas')
     expect(wrapper.find('#email').classes()).toContain('warning')
     expect(wrapper.find('#password').classes()).toContain('warning')
-    expect(console.log).toHaveBeenCalledWith('Invalid form')
     expect(loginMock).not.toHaveBeenCalled()
   })
 
@@ -90,7 +88,6 @@ describe('LoginView', () => {
     await flushPromises()
 
     expect(loginMock).toHaveBeenCalledWith('ahmet@example.com', 'secret1')
-    expect(console.log).toHaveBeenCalledWith(response)
     expect(wrapper.text()).not.toContain('Please fill all areas')
     expect((wrapper.find('#email').element as HTMLInputElement).value).toBe('')
     expect(router.currentRoute.value.path).toBe('/scanner')

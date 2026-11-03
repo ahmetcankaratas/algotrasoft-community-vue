@@ -90,15 +90,13 @@ describe('ResultItem', () => {
     expect(wrapper.find('a').exists()).toBe(false)
   })
 
-  it('stops loading and logs the error when the request fails', async () => {
-    const failure = new Error('Request failed with status code 401')
-    getBacktestMock.mockRejectedValue(failure)
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('stops loading and shows the error when the request fails', async () => {
+    getBacktestMock.mockRejectedValue(new Error('Request failed with status code 401'))
     const wrapper = mount(ResultItem, { props: { id: 1 }, global: { plugins: [router] } })
     await flushPromises()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
-    expect(consoleError).toHaveBeenCalledWith(failure)
-    consoleError.mockRestore()
+    expect(wrapper.find('a').exists()).toBe(false)
+    expect(wrapper.find('[role="alert"]').text()).toBe('Request failed with status code 401')
   })
 })

@@ -5,6 +5,7 @@
   >
     <LoadingSpinner />
   </div>
+  <ErrorAlert v-else-if="error" :message="error" />
   <RouterLink
     v-else-if="result"
     :to="`/scanner/${id - 1}`"
@@ -36,23 +37,21 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import ErrorAlert from '@/components/ErrorAlert.vue'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 import { getBacktest } from '@/services/dataStorage'
 import type { BacktestDetails } from '@/types/backtest'
 
 const props = defineProps<{ id: number }>()
 
-const isLoading = ref(true)
 const result = ref<BacktestDetails | null>(null)
+const { isLoading, error, run } = useRequestStatus()
 
 async function loadResult() {
-  try {
-    // Stock ids start at 1 in the database while the backtest results are a zero-based array.
+  // Stock ids start at 1 in the database while the backtest results are a zero-based array.
+  await run(async () => {
     result.value = await getBacktest(props.id - 1)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    isLoading.value = false
-  }
+  })
 }
 
 loadResult()
