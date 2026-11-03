@@ -4,6 +4,15 @@ import { createPinia, setActivePinia } from 'pinia'
 import router from '../index'
 import { useAuthStore } from '@/stores/auth'
 
+function authenticate() {
+  useAuthStore().user = {
+    email: 'ahmet@example.com',
+    id: 'uid',
+    token: 'token',
+    tokenExpirationDate: new Date(Date.now() + 60_000),
+  }
+}
+
 describe('router', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -30,15 +39,27 @@ describe('router', () => {
   })
 
   it('lets authenticated users open /scanner', async () => {
-    useAuthStore().user = {
-      email: 'ahmet@example.com',
-      id: 'uid',
-      token: 'token',
-      tokenExpirationDate: new Date(Date.now() + 60_000),
-    }
+    authenticate()
 
     await router.push('/scanner')
 
     expect(router.currentRoute.value.path).toBe('/scanner')
+    expect(router.currentRoute.value.name).toBe('scanner')
+  })
+
+  it('sends anonymous visitors from /scanner/:id to the login page', async () => {
+    await router.push('/')
+    await router.push('/scanner/0')
+
+    expect(router.currentRoute.value.path).toBe('/auth/login')
+  })
+
+  it('resolves the details route with its id param for authenticated users', async () => {
+    authenticate()
+    await router.push('/')
+    await router.push('/scanner/0')
+
+    expect(router.currentRoute.value.name).toBe('details')
+    expect(router.currentRoute.value.params).toEqual({ id: '0' })
   })
 })

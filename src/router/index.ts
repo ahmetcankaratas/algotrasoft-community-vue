@@ -14,9 +14,19 @@ const router = createRouter({
     },
     {
       path: '/scanner',
-      name: 'scanner',
       beforeEnter: requireAuth,
-      component: () => import('@/views/ScannerView.vue'),
+      children: [
+        {
+          path: '',
+          name: 'scanner',
+          component: () => import('@/views/ScannerView.vue'),
+        },
+        {
+          path: ':id',
+          name: 'details',
+          component: () => import('@/views/DetailsView.vue'),
+        },
+      ],
     },
     {
       path: '/contact',
