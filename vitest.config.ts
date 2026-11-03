@@ -7,6 +7,8 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: 'jsdom',
+      // Node >= 25 defines its own (empty) `localStorage` global, which shadows the jsdom one.
+      execArgv: ['--no-experimental-webstorage'],
       exclude: [...configDefaults.exclude, 'e2e/**'],
       root: fileURLToPath(new URL('./', import.meta.url)),
     },

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 import { mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import ContactView from '../ContactView.vue'
 
@@ -11,7 +12,7 @@ const router = createRouter({
 
 describe('ContactView', () => {
   it('should create', () => {
-    const wrapper = mount(ContactView, { global: { plugins: [router] } })
+    const wrapper = mount(ContactView, { global: { plugins: [createPinia(), router] } })
     expect(wrapper.text()).toContain('Email: algotrasoft@gmail.com')
   })
 })

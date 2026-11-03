@@ -4,16 +4,37 @@
       class="top-12 right-12 flex items-center justify-center space-x-4 md:absolute md:space-x-10"
     >
       <RouterLink to="/" class="hover:text-accentCyan">Home</RouterLink>
-      <RouterLink to="/scanner" class="hover:text-accentCyan tracking-widest">Scanner</RouterLink>
       <RouterLink to="/contact" class="hover:text-accentCyan tracking-widest">Contact</RouterLink>
       <span>|</span>
-      <RouterLink to="/auth/login" class="hover:text-accentCyan tracking-widest">Login</RouterLink>
       <RouterLink
+        v-if="!isAuthenticated"
+        to="/auth/login"
+        class="hover:text-accentCyan tracking-widest"
+        >Login</RouterLink
+      >
+      <button
+        v-else
+        type="button"
+        class="hover:text-accentCyan tracking-widest hover:cursor-pointer"
+        @click="onLogout"
+      >
+        Logout
+      </button>
+      <RouterLink
+        v-if="!isAuthenticated"
         to="/auth/signup"
         active-class=""
         exact-active-class=""
         class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
         >Sign Up</RouterLink
+      >
+      <RouterLink
+        v-else
+        to="/scanner"
+        active-class=""
+        exact-active-class=""
+        class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
+        >Scanner</RouterLink
       >
       <button
         id="theme-toggle"
@@ -48,5 +69,16 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
+
+function onLogout() {
+  authStore.logout()
+  router.push('/auth/login')
+}
 </script>

@@ -21,6 +21,7 @@ const response = {
 describe('useAuthStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    localStorage.clear()
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-01-01T10:00:00Z'))
   })
@@ -74,6 +75,69 @@ describe('useAuthStore', () => {
     expect(store.user?.token).toBe('token')
     expect(store.token).toBeNull()
     expect(store.isAuthenticated).toBe(false)
+  })
+
+  it('persists the user to localStorage after login', async () => {
+    vi.mocked(authApi.login).mockResolvedValue(response)
+    const store = useAuthStore()
+
+    await store.login('ahmet@example.com', 'secret1')
+
+    expect(JSON.parse(localStorage.getItem('userData')!)).toEqual({
+      email: 'ahmet@example.com',
+      id: 'uid',
+      token: 'token',
+      tokenExpirationDate: '2026-01-01T11:00:00.000Z',
+    })
+  })
+
+  it('restores a stored user with a valid token on autoLogin', () => {
+    localStorage.setItem(
+      'userData',
+      JSON.stringify({
+        email: 'ahmet@example.com',
+        id: 'uid',
+        token: 'token',
+        tokenExpirationDate: '2026-01-01T11:00:00.000Z',
+      }),
+    )
+    const store = useAuthStore()
+
+    store.autoLogin()
+
+    expect(store.user?.tokenExpirationDate).toEqual(new Date('2026-01-01T11:00:00Z'))
+    expect(store.token).toBe('token')
+    expect(store.isAuthenticated).toBe(true)
+  })
+
+  it('ignores autoLogin when nothing is stored or the token has expired', () => {
+    const store = useAuthStore()
+    store.autoLogin()
+    expect(store.user).toBeNull()
+
+    localStorage.setItem(
+      'userData',
+      JSON.stringify({
+        email: 'ahmet@example.com',
+        id: 'uid',
+        token: 'token',
+        tokenExpirationDate: '2026-01-01T09:00:00.000Z',
+      }),
+    )
+    store.autoLogin()
+    expect(store.user).toBeNull()
+  })
+
+  it('clears the user and the storage on logout', async () => {
+    vi.mocked(authApi.login).mockResolvedValue(response)
+    const store = useAuthStore()
+    await store.login('ahmet@example.com', 'secret1')
+
+    store.logout()
+
+    expect(store.user).toBeNull()
+    expect(store.isAuthenticated).toBe(false)
+    expect(localStorage.getItem('userData')).toBeNull()
   })
 
   it('keeps the user empty when the request fails', async () => {

@@ -10,6 +10,12 @@ export interface User {
   tokenExpirationDate: Date
 }
 
+const USER_STORAGE_KEY = 'userData'
+
+interface StoredUser extends Omit<User, 'tokenExpirationDate'> {
+  tokenExpirationDate: string
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
 
@@ -30,6 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
       token: data.idToken,
       tokenExpirationDate: new Date(Date.now() + expiresInMs),
     }
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.value))
   }
 
   async function signup(email: string, password: string): Promise<AuthResponseData> {
@@ -44,5 +51,25 @@ export const useAuthStore = defineStore('auth', () => {
     return data
   }
 
-  return { user, token, isAuthenticated, signup, login }
+  function autoLogin() {
+    const stored = localStorage.getItem(USER_STORAGE_KEY)
+    if (!stored) {
+      return
+    }
+
+    const loaded: StoredUser = JSON.parse(stored)
+    const expirationDate = new Date(loaded.tokenExpirationDate)
+    if (new Date() > expirationDate) {
+      return
+    }
+
+    user.value = { ...loaded, tokenExpirationDate: expirationDate }
+  }
+
+  function logout() {
+    user.value = null
+    localStorage.removeItem(USER_STORAGE_KEY)
+  }
+
+  return { user, token, isAuthenticated, signup, login, autoLogin, logout }
 })
