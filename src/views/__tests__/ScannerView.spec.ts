@@ -7,12 +7,21 @@ import ScannerView from '../ScannerView.vue'
 
 const router = createRouter({
   history: createMemoryHistory(),
-  routes: [{ path: '/scanner', component: ScannerView }],
+  routes: [
+    { path: '/scanner', component: ScannerView },
+    { path: '/scanner/:id', component: { template: '<div />' } },
+  ],
 })
 
 describe('ScannerView', () => {
   it('should create', () => {
     const wrapper = mount(ScannerView, { global: { plugins: [createPinia(), router] } })
     expect(wrapper.find('h1').text()).toBe('Scanner')
+  })
+
+  it('shows the search box and the result list', () => {
+    const wrapper = mount(ScannerView, { global: { plugins: [createPinia(), router] } })
+    expect(wrapper.find('input[placeholder="Enter Stock Name"]').exists()).toBe(true)
+    expect(wrapper.findAll('ul > li')).toHaveLength(3)
   })
 })
