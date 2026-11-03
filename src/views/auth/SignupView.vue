@@ -110,7 +110,7 @@
               <p class="text-sm font-light text-gray-500 dark:text-gray-400">
                 Already have an account?
                 <RouterLink
-                  to="/login"
+                  to="/auth/login"
                   class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
                   >Login here</RouterLink
                 >
@@ -127,6 +127,7 @@
 import { computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { signup } from '@/services/auth'
 
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z]).{6,}/
 
@@ -146,7 +147,7 @@ const errors = computed(() => ({
 
 const isValid = computed(() => !Object.values(errors.value).some(Boolean))
 
-function onSubmit() {
+async function onSubmit() {
   if (!isValid.value) {
     return
   }
@@ -154,7 +155,15 @@ function onSubmit() {
   Object.assign(userData, form)
   console.log(userData)
 
+  const request = signup(form.email, form.password)
+
   Object.assign(form, emptyForm())
   Object.assign(touched, untouched())
+
+  try {
+    console.log(await request)
+  } catch (error) {
+    console.log(error)
+  }
 }
 </script>

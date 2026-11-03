@@ -14,8 +14,8 @@ function createTestRouter(): Router {
       { path: '/', component: Stub },
       { path: '/scanner', component: Stub },
       { path: '/contact', component: Stub },
-      { path: '/login', component: Stub },
-      { path: '/signup', component: Stub },
+      { path: '/auth/login', component: Stub },
+      { path: '/auth/signup', component: Stub },
     ],
   })
 }

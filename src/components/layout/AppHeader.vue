@@ -7,9 +7,9 @@
       <RouterLink to="/scanner" class="hover:text-accentCyan tracking-widest">Scanner</RouterLink>
       <RouterLink to="/contact" class="hover:text-accentCyan tracking-widest">Contact</RouterLink>
       <span>|</span>
-      <RouterLink to="/login" class="hover:text-accentCyan tracking-widest">Login</RouterLink>
+      <RouterLink to="/auth/login" class="hover:text-accentCyan tracking-widest">Login</RouterLink>
       <RouterLink
-        to="/signup"
+        to="/auth/signup"
         class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
         >Sign Up</RouterLink
       >

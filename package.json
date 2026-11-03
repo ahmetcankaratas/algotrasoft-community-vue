@@ -18,6 +18,7 @@
   "dependencies": {
     "@tsparticles/engine": "^4.5.0",
     "@tsparticles/vue3": "^4.5.0",
+    "axios": "^1.21.0",
     "pinia": "^4.0.3",
     "tsparticles": "^4.5.0",
     "vue": "^3.5.42",

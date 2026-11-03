@@ -22,9 +22,20 @@ const router = createRouter({
       component: () => import('@/views/ContactView.vue'),
     },
     {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('@/views/SignupView.vue'),
+      path: '/auth',
+      redirect: { name: 'login' },
+      children: [
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import('@/views/auth/LoginView.vue'),
+        },
+        {
+          path: 'signup',
+          name: 'signup',
+          component: () => import('@/views/auth/SignupView.vue'),
+        },
+      ],
     },
   ],
 })
