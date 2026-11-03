@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-darkBlue: hsl(217, 28%, 15%);
   --color-darkBlue1: hsl(218, 28%, 13%);

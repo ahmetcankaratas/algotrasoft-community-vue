@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="typewriter-effect" />
 
 interface ViteTypeOptions {
   strictImportMetaEnv: unknown

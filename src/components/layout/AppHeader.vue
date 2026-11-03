@@ -38,11 +38,14 @@
       >
       <button
         id="theme-toggle"
+        type="button"
         class="rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-gray-700"
+        @click="themeStore.toggleTheme()"
       >
         <svg
           id="theme-toggle-dark-icon"
-          class="hidden h-5 w-5"
+          class="h-5 w-5"
+          :class="{ hidden: isDark }"
           fill="currentColor"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
@@ -53,6 +56,7 @@
         <svg
           id="theme-toggle-light-icon"
           class="h-5 w-5"
+          :class="{ hidden: !isDark }"
           fill="currentColor"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
@@ -72,9 +76,12 @@
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 const { isAuthenticated } = storeToRefs(authStore)
+const { isDark } = storeToRefs(themeStore)
 
 function onLogout() {
   authStore.logout()

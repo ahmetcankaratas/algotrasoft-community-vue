@@ -13,7 +13,10 @@ const router = createRouter({
 describe('HomeView', () => {
   it('should create', () => {
     const wrapper = mount(HomeView, {
-      global: { plugins: [createPinia(), router], stubs: { VueParticles: true } },
+      global: {
+        plugins: [createPinia(), router],
+        stubs: { VueParticles: true, TypewriterText: true },
+      },
     })
     expect(wrapper.exists()).toBe(true)
     expect(wrapper.find('#hero').exists()).toBe(true)

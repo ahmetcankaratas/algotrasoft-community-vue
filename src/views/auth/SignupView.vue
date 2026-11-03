@@ -147,7 +147,6 @@ const untouched = () => ({ firstName: false, lastName: false, email: false, pass
 
 const form = reactive(emptyForm())
 const touched = reactive(untouched())
-const userData = reactive(emptyForm())
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 
@@ -164,9 +163,6 @@ async function onSubmit() {
   if (!isValid.value) {
     return
   }
-
-  Object.assign(userData, form)
-  console.log(userData)
 
   isLoading.value = true
   error.value = null

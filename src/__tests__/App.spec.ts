@@ -14,7 +14,7 @@ describe('App', () => {
 
   function mountApp() {
     return mount(App, {
-      global: { plugins: [router], stubs: { VueParticles: true } },
+      global: { plugins: [router], stubs: { VueParticles: true, TypewriterText: true } },
     })
   }
 

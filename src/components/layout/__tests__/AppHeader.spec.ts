@@ -5,6 +5,7 @@ import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import AppHeader from '../AppHeader.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 
 const Stub = { template: '<div />' }
 
@@ -46,6 +47,10 @@ describe('AppHeader', () => {
     return mount(AppHeader, { global: { plugins: [pinia, router] } })
   }
 
+  function logoutButton(wrapper: ReturnType<typeof mountHeader>) {
+    return wrapper.findAll('button').find((button) => button.text() === 'Logout')
+  }
+
   it('should create', async () => {
     await router.push('/')
     const wrapper = mountHeader()
@@ -62,7 +67,7 @@ describe('AppHeader', () => {
       'Login',
       'Sign Up',
     ])
-    expect(wrapper.find('button[type="button"]').exists()).toBe(false)
+    expect(logoutButton(wrapper)).toBeUndefined()
   })
 
   it('shows Logout and Scanner when logged in', async () => {
@@ -71,7 +76,7 @@ describe('AppHeader', () => {
     const wrapper = mountHeader()
 
     expect(wrapper.findAll('a').map((l) => l.text())).toEqual(['Home', 'Contact', 'Scanner'])
-    expect(wrapper.find('button[type="button"]').text()).toBe('Logout')
+    expect(logoutButton(wrapper)).toBeDefined()
   })
 
   it('marks only the current route link as active', async () => {
@@ -99,7 +104,7 @@ describe('AppHeader', () => {
     await router.push('/scanner')
     const wrapper = mountHeader()
 
-    await wrapper.find('button[type="button"]').trigger('click')
+    await logoutButton(wrapper)!.trigger('click')
     await flushPromises()
 
     expect(useAuthStore().isAuthenticated).toBe(false)
@@ -109,5 +114,20 @@ describe('AppHeader', () => {
       'Login',
       'Sign Up',
     ])
+  })
+  it('shows the moon icon in light mode and the sun icon in dark mode', async () => {
+    await router.push('/')
+    const wrapper = mountHeader()
+    const moon = wrapper.find('#theme-toggle-dark-icon')
+    const sun = wrapper.find('#theme-toggle-light-icon')
+
+    expect(moon.classes()).toContain('hidden')
+    expect(sun.classes()).not.toContain('hidden')
+
+    await wrapper.find('#theme-toggle').trigger('click')
+
+    expect(useThemeStore().theme).toBe('light')
+    expect(moon.classes()).not.toContain('hidden')
+    expect(sun.classes()).toContain('hidden')
   })
 })
