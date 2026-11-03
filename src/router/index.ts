@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { scrollBehavior } from './scrollBehavior'
+import { requireAuth } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,7 @@ const router = createRouter({
     {
       path: '/scanner',
       name: 'scanner',
+      beforeEnter: requireAuth,
       component: () => import('@/views/ScannerView.vue'),
     },
     {

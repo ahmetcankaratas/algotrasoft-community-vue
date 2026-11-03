@@ -9,7 +9,6 @@ import { useAuthStore } from '@/stores/auth'
 describe('App', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    localStorage.clear()
     vi.stubGlobal('scrollTo', vi.fn<typeof window.scrollTo>())
   })
 
@@ -29,35 +28,13 @@ describe('App', () => {
     expect(wrapper.find('#hero').exists()).toBe(true)
   })
 
-  it('restores the stored session on startup', async () => {
-    localStorage.setItem(
-      'userData',
-      JSON.stringify({
-        email: 'ahmet@example.com',
-        id: 'uid',
-        token: 'token',
-        tokenExpirationDate: new Date(Date.now() + 60_000).toISOString(),
-      }),
-    )
-    await router.push('/')
-    await router.isReady()
-
-    const wrapper = mountApp()
-    await flushPromises()
-
-    expect(useAuthStore().isAuthenticated).toBe(true)
-    expect(wrapper.find('#navbar').text()).toContain('Logout')
-  })
   it('redirects to the login page when the session ends', async () => {
-    localStorage.setItem(
-      'userData',
-      JSON.stringify({
-        email: 'ahmet@example.com',
-        id: 'uid',
-        token: 'token',
-        tokenExpirationDate: new Date(Date.now() + 60_000).toISOString(),
-      }),
-    )
+    useAuthStore().user = {
+      email: 'ahmet@example.com',
+      id: 'uid',
+      token: 'token',
+      tokenExpirationDate: new Date(Date.now() + 60_000),
+    }
     await router.push('/scanner')
     await router.isReady()
     mountApp()

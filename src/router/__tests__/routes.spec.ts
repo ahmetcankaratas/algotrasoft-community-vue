@@ -1,9 +1,12 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import { createPinia, setActivePinia } from 'pinia'
 import router from '../index'
+import { useAuthStore } from '@/stores/auth'
 
 describe('router', () => {
-  beforeAll(() => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
     vi.stubGlobal('scrollTo', vi.fn<typeof window.scrollTo>())
   })
 
@@ -18,5 +21,24 @@ describe('router', () => {
   it('resolves the nested signup route', () => {
     const resolved = router.resolve('/auth/signup')
     expect(resolved.name).toBe('signup')
+  })
+
+  it('sends anonymous visitors from /scanner to the login page', async () => {
+    await router.push('/scanner')
+
+    expect(router.currentRoute.value.path).toBe('/auth/login')
+  })
+
+  it('lets authenticated users open /scanner', async () => {
+    useAuthStore().user = {
+      email: 'ahmet@example.com',
+      id: 'uid',
+      token: 'token',
+      tokenExpirationDate: new Date(Date.now() + 60_000),
+    }
+
+    await router.push('/scanner')
+
+    expect(router.currentRoute.value.path).toBe('/scanner')
   })
 })

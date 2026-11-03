@@ -9,10 +9,7 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
-const authStore = useAuthStore()
-const { isAuthenticated } = storeToRefs(authStore)
-
-authStore.autoLogin()
+const { isAuthenticated } = storeToRefs(useAuthStore())
 
 watch(isAuthenticated, (authenticated) => {
   if (!authenticated) {

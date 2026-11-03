@@ -7,10 +7,13 @@ import { loadFull } from 'tsparticles'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
 
 const app = createApp(App)
 
 app.use(createPinia())
+// Restore the stored session before the router resolves the first route and runs its guards.
+useAuthStore().autoLogin()
 app.use(router)
 app.use(Particles, {
   init: async (engine) => {
