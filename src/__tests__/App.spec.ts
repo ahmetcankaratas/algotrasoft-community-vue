@@ -48,4 +48,24 @@ describe('App', () => {
     expect(useAuthStore().isAuthenticated).toBe(true)
     expect(wrapper.find('#navbar').text()).toContain('Logout')
   })
+  it('redirects to the login page when the session ends', async () => {
+    localStorage.setItem(
+      'userData',
+      JSON.stringify({
+        email: 'ahmet@example.com',
+        id: 'uid',
+        token: 'token',
+        tokenExpirationDate: new Date(Date.now() + 60_000).toISOString(),
+      }),
+    )
+    await router.push('/scanner')
+    await router.isReady()
+    mountApp()
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/scanner')
+
+    useAuthStore().logout()
+
+    await vi.waitFor(() => expect(router.currentRoute.value.path).toBe('/auth/login'))
+  })
 })

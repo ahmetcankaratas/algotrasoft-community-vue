@@ -94,7 +94,7 @@ describe('AppHeader', () => {
     expect(signUp.classes()).not.toContain('router-link-exact-active')
   })
 
-  it('logs out and navigates to the login page', async () => {
+  it('logs out when the Logout button is clicked', async () => {
     authenticate()
     await router.push('/scanner')
     const wrapper = mountHeader()
@@ -103,7 +103,6 @@ describe('AppHeader', () => {
     await flushPromises()
 
     expect(useAuthStore().isAuthenticated).toBe(false)
-    expect(router.currentRoute.value.path).toBe('/auth/login')
     expect(wrapper.findAll('a').map((l) => l.text())).toEqual([
       'Home',
       'Contact',

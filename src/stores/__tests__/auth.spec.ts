@@ -140,6 +140,49 @@ describe('useAuthStore', () => {
     expect(localStorage.getItem('userData')).toBeNull()
   })
 
+  it('logs out automatically when the token expires', async () => {
+    vi.mocked(authApi.login).mockResolvedValue(response)
+    const store = useAuthStore()
+    await store.login('ahmet@example.com', 'secret1')
+
+    vi.advanceTimersByTime(3600_000 - 1)
+    expect(store.isAuthenticated).toBe(true)
+
+    vi.advanceTimersByTime(1)
+    expect(store.user).toBeNull()
+    expect(localStorage.getItem('userData')).toBeNull()
+  })
+
+  it('schedules the automatic logout for the remaining time on autoLogin', () => {
+    localStorage.setItem(
+      'userData',
+      JSON.stringify({
+        email: 'ahmet@example.com',
+        id: 'uid',
+        token: 'token',
+        tokenExpirationDate: '2026-01-01T10:30:00.000Z',
+      }),
+    )
+    const store = useAuthStore()
+
+    store.autoLogin()
+    expect(store.isAuthenticated).toBe(true)
+
+    vi.advanceTimersByTime(30 * 60_000)
+    expect(store.user).toBeNull()
+  })
+
+  it('cancels the pending automatic logout on manual logout', async () => {
+    vi.mocked(authApi.login).mockResolvedValue(response)
+    const store = useAuthStore()
+    await store.login('ahmet@example.com', 'secret1')
+    expect(vi.getTimerCount()).toBe(1)
+
+    store.logout()
+
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
   it('keeps the user empty when the request fails', async () => {
     vi.mocked(authApi.login).mockRejectedValue(new Error('This password is not correct!'))
     const store = useAuthStore()

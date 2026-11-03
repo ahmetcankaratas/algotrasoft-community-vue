@@ -18,6 +18,7 @@ interface StoredUser extends Omit<User, 'tokenExpirationDate'> {
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  let tokenExpirationTimer: ReturnType<typeof setTimeout> | null = null
 
   const token = computed(() => {
     if (!user.value || new Date() > user.value.tokenExpirationDate) {
@@ -37,6 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
       tokenExpirationDate: new Date(Date.now() + expiresInMs),
     }
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.value))
+    autoLogout(expiresInMs)
   }
 
   async function signup(email: string, password: string): Promise<AuthResponseData> {
@@ -64,11 +66,20 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     user.value = { ...loaded, tokenExpirationDate: expirationDate }
+    autoLogout(expirationDate.getTime() - Date.now())
+  }
+
+  function autoLogout(expirationDuration: number) {
+    tokenExpirationTimer = setTimeout(logout, expirationDuration)
   }
 
   function logout() {
     user.value = null
     localStorage.removeItem(USER_STORAGE_KEY)
+    if (tokenExpirationTimer) {
+      clearTimeout(tokenExpirationTimer)
+      tokenExpirationTimer = null
+    }
   }
 
   return { user, token, isAuthenticated, signup, login, autoLogin, logout }
