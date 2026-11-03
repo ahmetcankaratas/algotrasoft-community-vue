@@ -123,7 +123,9 @@ describe('LoginView', () => {
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('This password is not correct!')
+    const alert = wrapper.find('[role="alert"]')
+    expect(alert.text()).toBe('This password is not correct!')
+    expect(alert.classes()).toContain('bg-red-300')
     expect(wrapper.find('form').exists()).toBe(true)
     expect(router.currentRoute.value.path).not.toBe('/scanner')
   })

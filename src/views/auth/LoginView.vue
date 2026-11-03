@@ -2,7 +2,11 @@
   <AppLayout>
     <section id="login" class="dark:bg-darkBlue bg-gray-50">
       <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
-        <div v-if="error">
+        <div
+          v-if="error"
+          role="alert"
+          class="my-4 rounded-lg bg-red-300 px-5 py-2.5 text-center text-sm font-medium text-white"
+        >
           <p>{{ error }}</p>
         </div>
         <div v-if="isLoading">

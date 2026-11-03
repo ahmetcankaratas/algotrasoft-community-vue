@@ -130,7 +130,9 @@ describe('SignupView', () => {
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('This email exists already!')
+    const alert = wrapper.find('[role="alert"]')
+    expect(alert.text()).toBe('This email exists already!')
+    expect(alert.classes()).toContain('bg-red-300')
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.find('form').exists()).toBe(true)
     expect(console.log).toHaveBeenCalledWith('This email exists already!')
