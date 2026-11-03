@@ -1,22 +1,42 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import ScannerView from '../ScannerView.vue'
-import { getStocks } from '@/services/dataStorage'
+import { getStocks, getBacktest } from '@/services/dataStorage'
+import {
+  MockIntersectionObserver,
+  installIntersectionObserverMock,
+} from '@/directives/__tests__/intersectionObserver.mock'
 
 vi.mock('@/services/dataStorage', () => ({
   getStocks: vi.fn<typeof getStocks>(),
+  getBacktest: vi.fn<typeof getBacktest>(),
 }))
 
 const getStocksMock = vi.mocked(getStocks)
+const getBacktestMock = vi.mocked(getBacktest)
 
 const stocks = [
-  { id: 1, name: 'Green Plains, Inc.', symbol: 'GPRE', return_yearly_1: 6.3 },
-  { id: 2, name: 'TPG Specialty Lending, Inc.', symbol: 'TSLX', return_yearly_1: -2.4 },
-  { id: 3, name: 'First Trust High Income ETF', symbol: 'FTHI', return_yearly_1: 4.3 },
+  { id: 1, name: 'Green Plains, Inc.', symbol: 'GPRE' },
+  { id: 2, name: 'TPG Specialty Lending, Inc.', symbol: 'TSLX' },
+  { id: 3, name: 'First Trust High Income ETF', symbol: 'FTHI' },
 ]
+
+function backtestFor(index: number) {
+  return {
+    ...stocks[index]!,
+    market: 'NASDAQ',
+    sector: 'Energy',
+    industry: 'n/a',
+    market_cap: '1B',
+    return_monthly_1: 1,
+    return_monthly_3: 2,
+    return_monthly_6: 3,
+    return_yearly_1: index + 1,
+  }
+}
 
 function mountScanner() {
   const router = createRouter({
@@ -31,8 +51,17 @@ function mountScanner() {
 
 describe('ScannerView', () => {
   beforeEach(() => {
+    installIntersectionObserverMock()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     getStocksMock.mockReset()
     getStocksMock.mockResolvedValue({ stocks })
+    getBacktestMock.mockReset()
+    getBacktestMock.mockImplementation(async (index) => backtestFor(index))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('should create', () => {
@@ -77,6 +106,9 @@ describe('ScannerView', () => {
     await flushPromises()
 
     await wrapper.find('input[placeholder="Enter Stock Name"]').setValue('first')
+    MockIntersectionObserver.revealAll()
+    vi.advanceTimersByTime(300)
+    await flushPromises()
 
     expect(wrapper.findAll('ul > li').map((li) => li.find('h4').text())).toEqual(['FTHI'])
   })

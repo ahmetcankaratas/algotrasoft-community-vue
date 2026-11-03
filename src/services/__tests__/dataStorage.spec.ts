@@ -15,7 +15,7 @@ describe('getStocks', () => {
   })
 
   it('reads the market list from the realtime database', async () => {
-    const stocks = [{ id: 1, name: 'Green Plains, Inc.', symbol: 'GPRE', return_yearly_1: 6.3 }]
+    const stocks = [{ id: 1, name: 'Green Plains, Inc.', symbol: 'GPRE' }]
     getMock.mockResolvedValue({ data: { stocks } })
 
     const data = await getStocks()
