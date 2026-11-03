@@ -2,8 +2,7 @@ import { http } from './http'
 import type { MarketResponse } from '@/types/market'
 import type { BacktestDetails } from '@/types/backtest'
 
-const DATABASE_URL =
-  'https://algotrasoft-community-angular-default-rtdb.europe-west1.firebasedatabase.app'
+const DATABASE_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL
 
 export async function getStocks(): Promise<MarketResponse> {
   const { data } = await http.get<MarketResponse>(`${DATABASE_URL}/market.json`)

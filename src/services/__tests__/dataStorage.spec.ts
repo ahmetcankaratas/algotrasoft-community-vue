@@ -3,6 +3,10 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { getStocks, getBacktest } from '../dataStorage'
 import { http } from '../http'
 
+vi.hoisted(() => {
+  vi.stubEnv('VITE_FIREBASE_DATABASE_URL', 'https://db.example.test')
+})
+
 vi.mock('../http', () => ({
   http: { get: vi.fn<typeof http.get>() },
 }))
@@ -21,9 +25,7 @@ describe('getStocks', () => {
     const data = await getStocks()
 
     expect(data.stocks).toEqual(stocks)
-    expect(getMock).toHaveBeenCalledWith(
-      'https://algotrasoft-community-angular-default-rtdb.europe-west1.firebasedatabase.app/market.json',
-    )
+    expect(getMock).toHaveBeenCalledWith('https://db.example.test/market.json')
   })
 })
 
@@ -39,9 +41,7 @@ describe('getBacktest', () => {
     const data = await getBacktest(1)
 
     expect(data).toEqual(backtest)
-    expect(getMock).toHaveBeenCalledWith(
-      'https://algotrasoft-community-angular-default-rtdb.europe-west1.firebasedatabase.app/backtests/results/1.json',
-    )
+    expect(getMock).toHaveBeenCalledWith('https://db.example.test/backtests/results/1.json')
   })
 
   it('returns null when the database has no entry for the id', async () => {
