@@ -71,4 +71,13 @@ describe('ScannerView', () => {
     expect(consoleError).toHaveBeenCalledWith(failure)
     consoleError.mockRestore()
   })
+
+  it('filters the list by the typed stock name', async () => {
+    const wrapper = mountScanner()
+    await flushPromises()
+
+    await wrapper.find('input[placeholder="Enter Stock Name"]').setValue('first')
+
+    expect(wrapper.findAll('ul > li').map((li) => li.find('h4').text())).toEqual(['FTHI'])
+  })
 })

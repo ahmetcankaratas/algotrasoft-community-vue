@@ -1,5 +1,5 @@
 <template>
-  <div v-if="details" class="container mx-auto mt-[-5rem] w-full px-6 md:max-w-2xl">
+  <div class="container mx-auto mt-[-5rem] w-full px-6 md:max-w-2xl">
     <div
       class="dark:bg-darkBlue3 flex flex-col justify-between space-y-4 rounded-lg bg-gray-100 p-10"
     >
@@ -16,10 +16,11 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import InfoRow from './InfoRow.vue'
 import BarGraph from './BarGraph.vue'
-import { useResultsStore } from '@/stores/results'
+import type { BacktestResponseResult } from '@/types/backtest'
 
-const { details } = storeToRefs(useResultsStore())
+defineProps<{
+  details: BacktestResponseResult
+}>()
 </script>

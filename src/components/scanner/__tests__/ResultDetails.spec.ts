@@ -1,13 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import ResultDetails from '../ResultDetails.vue'
 import InfoRow from '../InfoRow.vue'
 import BarGraph from '../BarGraph.vue'
-import { useResultsStore } from '@/stores/results'
 
-const backtest = {
+const details = {
   id: 2,
   symbol: 'TSLX',
   name: 'TPG Specialty Lending, Inc.',
@@ -22,26 +20,8 @@ const backtest = {
 }
 
 describe('ResultDetails', () => {
-  let pinia: Pinia
-
-  beforeEach(() => {
-    pinia = createPinia()
-    setActivePinia(pinia)
-  })
-
-  function mountDetails() {
-    return mount(ResultDetails, { global: { plugins: [pinia] } })
-  }
-
-  it('renders nothing while the store has no details', () => {
-    expect(mountDetails().html()).toBe('<!--v-if-->')
-  })
-
-  it('renders the stored details and follows store updates', async () => {
-    const wrapper = mountDetails()
-
-    useResultsStore().setDetails(backtest)
-    await wrapper.vm.$nextTick()
+  it('renders the given details as info rows and bar graphs', () => {
+    const wrapper = mount(ResultDetails, { props: { details } })
 
     const rows = wrapper.findAllComponents(InfoRow)
     expect(rows.map((row) => row.findAll(':scope > div').map((cell) => cell.text()))).toEqual([

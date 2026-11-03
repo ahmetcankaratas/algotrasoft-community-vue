@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <PageCover header="Scanner" description="Backtesting Results of Ross Hook Trading Strategy" />
+    <PageCover :header="details?.name" description="Result Details" />
     <div class="container mx-auto px-6 pt-12 pb-20 md:pb-24">
       <div
         v-if="isLoading"
@@ -8,7 +8,7 @@
       >
         <LoadingSpinner />
       </div>
-      <ResultDetails v-if="!isLoading" />
+      <ResultDetails v-if="!isLoading && details" :details="details" />
       <BackButton />
     </div>
   </AppLayout>
@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PageCover from '@/components/PageCover.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -27,10 +28,13 @@ import { useResultsStore } from '@/stores/results'
 
 const route = useRoute()
 const resultsStore = useResultsStore()
+const { details } = storeToRefs(resultsStore)
 const isLoading = ref(true)
 
 async function loadDetails(id: number) {
   isLoading.value = true
+  // Drop the previous stock so its name does not show in the cover while the next one loads.
+  resultsStore.setDetails(null)
   try {
     resultsStore.setDetails(await getBacktest(id))
   } catch (error) {

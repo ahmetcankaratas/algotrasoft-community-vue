@@ -54,7 +54,7 @@ describe('DetailsView', () => {
 
   it('should create', async () => {
     const wrapper = await mountDetails()
-    expect(wrapper.find('h1').text()).toBe('Scanner')
+    expect(wrapper.find('p.text-darkCyan').text()).toBe('Result Details')
     expect(wrapper.findComponent(BackButton).exists()).toBe(true)
   })
 
@@ -63,7 +63,17 @@ describe('DetailsView', () => {
     const wrapper = await mountDetails()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(true)
+    expect(wrapper.find('h1').text()).toBe('')
     expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
+  })
+
+  it('clears the previous details before loading the next ones', async () => {
+    useResultsStore().setDetails({ ...backtest, name: 'Previous stock' })
+    getBacktestMock.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountDetails()
+
+    expect(wrapper.find('h1').text()).toBe('')
+    expect(useResultsStore().details).toBeNull()
   })
 
   it('fetches the backtest for the route id and shows the details', async () => {
@@ -73,7 +83,8 @@ describe('DetailsView', () => {
     expect(getBacktestMock).toHaveBeenCalledWith(0)
     expect(useResultsStore().details).toEqual(backtest)
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
-    expect(wrapper.findComponent(ResultDetails).text()).toContain('NASDAQ')
+    expect(wrapper.find('h1').text()).toBe('Green Plains, Inc.')
+    expect(wrapper.findComponent(ResultDetails).props('details')).toEqual(backtest)
   })
 
   it('re-fetches when the id changes while the view stays mounted', async () => {
@@ -94,7 +105,7 @@ describe('DetailsView', () => {
     await flushPromises()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
-    expect(wrapper.findComponent(ResultDetails).exists()).toBe(true)
+    expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
     expect(useResultsStore().details).toBeNull()
     expect(consoleError).toHaveBeenCalledWith(failure)
     consoleError.mockRestore()

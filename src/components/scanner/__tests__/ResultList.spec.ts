@@ -37,4 +37,23 @@ describe('ResultList', () => {
     expect(items).toHaveLength(2)
     expect(items.map((li) => li.find('h4').text())).toEqual(['GPRE', 'TSLX'])
   })
+
+  it('shows only the results whose name contains the query', async () => {
+    useResultsStore().setResults([
+      { id: 1, name: 'Green Plains, Inc.', symbol: 'GPRE', return_yearly_1: 6.3 },
+      { id: 2, name: 'TPG Specialty Lending, Inc.', symbol: 'TSLX', return_yearly_1: -2.4 },
+      { id: 3, name: 'First Trust High Income ETF', symbol: 'FTHI', return_yearly_1: 4.3 },
+    ])
+    const wrapper = mount(ResultList, {
+      props: { query: 'INC.' },
+      global: { plugins: [pinia, router] },
+    })
+    expect(wrapper.findAll('li').map((li) => li.find('h4').text())).toEqual(['GPRE', 'TSLX'])
+
+    await wrapper.setProps({ query: 'trust' })
+    expect(wrapper.findAll('li').map((li) => li.find('h4').text())).toEqual(['FTHI'])
+
+    await wrapper.setProps({ query: '' })
+    expect(wrapper.findAll('li')).toHaveLength(3)
+  })
 })

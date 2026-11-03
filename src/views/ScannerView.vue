@@ -8,8 +8,8 @@
       >
         <LoadingSpinner />
       </div>
-      <ScannerSearch v-if="!isLoading" />
-      <ResultList />
+      <ScannerSearch v-if="!isLoading" v-model="searchQuery" />
+      <ResultList :query="searchQuery" />
     </div>
   </AppLayout>
 </template>
@@ -26,6 +26,7 @@ import { useResultsStore } from '@/stores/results'
 
 const resultsStore = useResultsStore()
 const isLoading = ref(true)
+const searchQuery = ref('')
 
 async function loadResults() {
   try {
