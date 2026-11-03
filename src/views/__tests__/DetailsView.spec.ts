@@ -1,33 +1,102 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import { mount } from '@vue/test-utils'
-import { createPinia } from 'pinia'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia, type Pinia } from 'pinia'
+import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import DetailsView from '../DetailsView.vue'
 import ResultDetails from '@/components/scanner/ResultDetails.vue'
 import BackButton from '@/components/BackButton.vue'
+import { getBacktest } from '@/services/dataStorage'
+import { useResultsStore } from '@/stores/results'
 
-function mountDetails() {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [
-      { path: '/scanner', component: { template: '<div />' } },
-      { path: '/scanner/:id', component: DetailsView },
-    ],
-  })
-  return mount(DetailsView, { global: { plugins: [createPinia(), router] } })
+vi.mock('@/services/dataStorage', () => ({
+  getBacktest: vi.fn<typeof getBacktest>(),
+}))
+
+const getBacktestMock = vi.mocked(getBacktest)
+
+const backtest = {
+  id: 1,
+  symbol: 'GPRE',
+  name: 'Green Plains, Inc.',
+  market: 'NASDAQ',
+  sector: 'Energy',
+  industry: 'Renewable Fuels',
+  market_cap: '1.6B',
+  return_monthly_1: 1.2,
+  return_monthly_3: 2.8,
+  return_monthly_6: 4.1,
+  return_yearly_1: 6.3,
 }
 
 describe('DetailsView', () => {
-  it('should create', () => {
-    const wrapper = mountDetails()
-    expect(wrapper.find('h1').text()).toBe('Scanner')
+  let pinia: Pinia
+  let router: Router
+
+  beforeEach(() => {
+    pinia = createPinia()
+    setActivePinia(pinia)
+    router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: '/scanner', component: { template: '<div />' } },
+        { path: '/scanner/:id', component: DetailsView },
+      ],
+    })
+    getBacktestMock.mockReset()
+    getBacktestMock.mockResolvedValue(backtest)
   })
 
-  it('renders the details and the back button without a spinner', () => {
-    const wrapper = mountDetails()
-    expect(wrapper.findComponent(ResultDetails).exists()).toBe(true)
+  async function mountDetails(id = 0) {
+    await router.push(`/scanner/${id}`)
+    return mount(DetailsView, { global: { plugins: [pinia, router] } })
+  }
+
+  it('should create', async () => {
+    const wrapper = await mountDetails()
+    expect(wrapper.find('h1').text()).toBe('Scanner')
     expect(wrapper.findComponent(BackButton).exists()).toBe(true)
+  })
+
+  it('shows the spinner and hides the details while loading', async () => {
+    getBacktestMock.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountDetails()
+
+    expect(wrapper.find('.lds-ring').exists()).toBe(true)
+    expect(wrapper.findComponent(ResultDetails).exists()).toBe(false)
+  })
+
+  it('fetches the backtest for the route id and shows the details', async () => {
+    const wrapper = await mountDetails(0)
+    await flushPromises()
+
+    expect(getBacktestMock).toHaveBeenCalledWith(0)
+    expect(useResultsStore().details).toEqual(backtest)
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
+    expect(wrapper.findComponent(ResultDetails).text()).toContain('NASDAQ')
+  })
+
+  it('re-fetches when the id changes while the view stays mounted', async () => {
+    await mountDetails(0)
+    await flushPromises()
+
+    await router.push('/scanner/1')
+    await flushPromises()
+
+    expect(getBacktestMock).toHaveBeenNthCalledWith(2, 1)
+  })
+
+  it('stops loading and logs the error when the request fails', async () => {
+    const failure = new Error('Request failed with status code 401')
+    getBacktestMock.mockRejectedValue(failure)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const wrapper = await mountDetails()
+    await flushPromises()
+
+    expect(wrapper.find('.lds-ring').exists()).toBe(false)
+    expect(wrapper.findComponent(ResultDetails).exists()).toBe(true)
+    expect(useResultsStore().details).toBeNull()
+    expect(consoleError).toHaveBeenCalledWith(failure)
+    consoleError.mockRestore()
   })
 })
