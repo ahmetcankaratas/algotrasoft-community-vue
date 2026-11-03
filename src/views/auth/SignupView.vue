@@ -2,7 +2,15 @@
   <AppLayout>
     <section class="dark:bg-darkBlue bg-gray-50">
       <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
+        <div v-if="error">
+          <p>{{ error }}</p>
+        </div>
+        <div v-if="isLoading">
+          <LoadingSpinner />
+        </div>
+
         <div
+          v-if="!isLoading"
           class="w-full rounded-lg bg-white shadow sm:max-w-md md:my-10 xl:p-0 dark:border dark:border-gray-700 dark:bg-gray-800"
         >
           <div class="space-y-4 p-6 sm:p-8 md:space-y-6">
@@ -124,9 +132,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { signup } from '@/services/auth'
 
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z]).{6,}/
@@ -137,6 +146,8 @@ const untouched = () => ({ firstName: false, lastName: false, email: false, pass
 const form = reactive(emptyForm())
 const touched = reactive(untouched())
 const userData = reactive(emptyForm())
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
 const errors = computed(() => ({
   firstName: form.firstName.trim() === '',
@@ -155,6 +166,8 @@ async function onSubmit() {
   Object.assign(userData, form)
   console.log(userData)
 
+  isLoading.value = true
+  error.value = null
   const request = signup(form.email, form.password)
 
   Object.assign(form, emptyForm())
@@ -162,8 +175,12 @@ async function onSubmit() {
 
   try {
     console.log(await request)
-  } catch (error) {
-    console.log(error)
+  } catch (failure) {
+    const message = failure instanceof Error ? failure.message : 'An unknown error occurred!'
+    console.log(message)
+    error.value = message
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 
+import { AxiosError, type AxiosResponse } from 'axios'
 import { signup } from '../auth'
 import { http } from '../http'
 
@@ -8,6 +9,17 @@ vi.mock('../http', () => ({
 }))
 
 const postMock = vi.mocked(http.post)
+
+function firebaseError(code: string): AxiosError {
+  const response = { status: 400, data: { error: { message: code } } } as AxiosResponse
+  return new AxiosError(
+    'Request failed with status code 400',
+    '400',
+    undefined,
+    undefined,
+    response,
+  )
+}
 
 describe('signup', () => {
   afterEach(() => {
@@ -29,10 +41,29 @@ describe('signup', () => {
     )
   })
 
-  it('rejects when the request fails', async () => {
-    const failure = new Error('Network Error')
-    postMock.mockRejectedValue(failure)
+  it.each([
+    ['EMAIL_EXISTS', 'This email exists already!'],
+    ['EMAIL_NOT_FOUND', 'This email does not exist!'],
+    ['INVALID_PASSWORD', 'This password is not correct!'],
+  ])('maps the Firebase error code %s to a readable message', async (code, message) => {
+    postMock.mockRejectedValue(firebaseError(code))
 
-    await expect(signup('ahmet@example.com', 'secret1')).rejects.toBe(failure)
+    await expect(signup('ahmet@example.com', 'secret1')).rejects.toThrow(message)
+  })
+
+  it('falls back to a generic message for unknown Firebase codes', async () => {
+    postMock.mockRejectedValue(firebaseError('SOMETHING_ELSE'))
+
+    await expect(signup('ahmet@example.com', 'secret1')).rejects.toThrow(
+      'An unknown error occurred!',
+    )
+  })
+
+  it('falls back to a generic message when the failure is not an HTTP response', async () => {
+    postMock.mockRejectedValue(new Error('Network Error'))
+
+    await expect(signup('ahmet@example.com', 'secret1')).rejects.toThrow(
+      'An unknown error occurred!',
+    )
   })
 })

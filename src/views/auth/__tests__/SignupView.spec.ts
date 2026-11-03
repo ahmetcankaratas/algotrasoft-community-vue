@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import { nextTick } from 'vue'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import SignupView from '../SignupView.vue'
@@ -89,17 +90,62 @@ describe('SignupView', () => {
     log.mockRestore()
   })
 
-  it('logs the error when the signup request fails', async () => {
+  it('shows the spinner instead of the form while the request is pending', async () => {
+    let resolveSignup!: (value: Awaited<ReturnType<typeof signup>>) => void
+    signupMock.mockReturnValue(new Promise((resolve) => (resolveSignup = resolve)))
+    const wrapper = mountSignup()
+    await fillValidForm(wrapper)
+
+    await wrapper.find('form').trigger('submit')
+    await nextTick()
+
+    expect(wrapper.find('.lds-ring').exists()).toBe(true)
+    expect(wrapper.find('form').exists()).toBe(false)
+
+    resolveSignup({
+      kind: 'identitytoolkit#SignupNewUserResponse',
+      idToken: 'token',
+      email: 'ahmet@example.com',
+      refreshToken: 'refresh',
+      expiresIn: '3600',
+      localId: 'uid',
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.lds-ring').exists()).toBe(false)
+    expect(wrapper.find('form').exists()).toBe(true)
+  })
+
+  it('shows the error message when the signup request fails', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const failure = new Error('EMAIL_EXISTS')
-    signupMock.mockRejectedValue(failure)
+    signupMock.mockRejectedValue(new Error('This email exists already!'))
     const wrapper = mountSignup()
     await fillValidForm(wrapper)
 
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    expect(log).toHaveBeenCalledWith(failure)
+    expect(wrapper.text()).toContain('This email exists already!')
+    expect(wrapper.find('.lds-ring').exists()).toBe(false)
+    expect(wrapper.find('form').exists()).toBe(true)
+    expect(log).toHaveBeenCalledWith('This email exists already!')
     log.mockRestore()
+  })
+
+  it('clears a previous error when submitting again', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    signupMock.mockRejectedValueOnce(new Error('This email exists already!'))
+    const wrapper = mountSignup()
+    await fillValidForm(wrapper)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.text()).toContain('This email exists already!')
+
+    await fillValidForm(wrapper)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('This email exists already!')
+    vi.restoreAllMocks()
   })
 })
