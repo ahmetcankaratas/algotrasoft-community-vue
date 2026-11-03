@@ -133,11 +133,14 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { signup } from '@/services/auth'
+import { useAuthStore } from '@/stores/auth'
 import { isEmail, isPassword } from '@/utils/validation'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const emptyForm = () => ({ firstName: '', lastName: '', email: '', password: '' })
 const untouched = () => ({ firstName: false, lastName: false, email: false, password: false })
@@ -167,13 +170,14 @@ async function onSubmit() {
 
   isLoading.value = true
   error.value = null
-  const request = signup(form.email, form.password)
+  const request = authStore.signup(form.email, form.password)
 
   Object.assign(form, emptyForm())
   Object.assign(touched, untouched())
 
   try {
     console.log(await request)
+    await router.push('/scanner')
   } catch (failure) {
     const message = failure instanceof Error ? failure.message : 'An unknown error occurred!'
     console.log(message)

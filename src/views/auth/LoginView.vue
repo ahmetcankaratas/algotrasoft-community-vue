@@ -2,7 +2,14 @@
   <AppLayout>
     <section id="login" class="dark:bg-darkBlue bg-gray-50">
       <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
+        <div v-if="error">
+          <p>{{ error }}</p>
+        </div>
+        <div v-if="isLoading">
+          <LoadingSpinner />
+        </div>
         <div
+          v-if="!isLoading"
           class="w-full rounded-lg bg-white shadow sm:max-w-md md:mt-0 xl:p-0 dark:border dark:border-gray-700 dark:bg-gray-800"
         >
           <div class="space-y-4 p-6 sm:p-8 md:space-y-6">
@@ -87,17 +94,23 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useAuthStore } from '@/stores/auth'
 import { isEmail, isPassword } from '@/utils/validation'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const emptyForm = () => ({ email: '', password: '' })
 const untouched = () => ({ email: false, password: false })
 
 const form = reactive(emptyForm())
 const touched = reactive(untouched())
-const loginData = reactive(emptyForm())
 const invalidSubmit = ref(false)
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
 const errors = computed(() => ({
   email: !isEmail(form.email),
@@ -106,7 +119,7 @@ const errors = computed(() => ({
 
 const isValid = computed(() => !Object.values(errors.value).some(Boolean))
 
-function onSubmit() {
+async function onSubmit() {
   if (!isValid.value) {
     console.log('Invalid form')
     invalidSubmit.value = true
@@ -114,10 +127,22 @@ function onSubmit() {
   }
 
   invalidSubmit.value = false
-  Object.assign(loginData, form)
-  console.log(loginData)
+  isLoading.value = true
+  error.value = null
+  const request = authStore.login(form.email, form.password)
 
   Object.assign(form, emptyForm())
   Object.assign(touched, untouched())
+
+  try {
+    console.log(await request)
+    await router.push('/scanner')
+  } catch (failure) {
+    const message = failure instanceof Error ? failure.message : 'An unknown error occurred!'
+    console.log(message)
+    error.value = message
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>

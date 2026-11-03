@@ -2,25 +2,38 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { nextTick } from 'vue'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createPinia } from 'pinia'
+import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import SignupView from '../SignupView.vue'
-import { signup } from '@/services/auth'
+import * as authApi from '@/services/auth'
 
 vi.mock('@/services/auth', () => ({
-  signup: vi.fn<typeof signup>(),
+  signup: vi.fn<typeof authApi.signup>(),
+  login: vi.fn<typeof authApi.login>(),
 }))
 
-const signupMock = vi.mocked(signup)
+const signupMock = vi.mocked(authApi.signup)
 
-function mountSignup(): VueWrapper {
+const response = {
+  kind: 'identitytoolkit#SignupNewUserResponse',
+  idToken: 'token',
+  email: 'ahmet@example.com',
+  refreshToken: 'refresh',
+  expiresIn: '3600',
+  localId: 'uid',
+}
+
+function mountSignup(): { wrapper: VueWrapper; router: Router } {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: '/auth/signup', component: SignupView },
       { path: '/auth/login', component: { template: '<div />' } },
+      { path: '/scanner', component: { template: '<div />' } },
     ],
   })
-  return mount(SignupView, { global: { plugins: [router] } })
+  const wrapper = mount(SignupView, { global: { plugins: [createPinia(), router] } })
+  return { wrapper, router }
 }
 
 async function fillValidForm(wrapper: VueWrapper) {
@@ -32,24 +45,18 @@ async function fillValidForm(wrapper: VueWrapper) {
 
 describe('SignupView', () => {
   beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {})
     signupMock.mockReset()
-    signupMock.mockResolvedValue({
-      kind: 'identitytoolkit#SignupNewUserResponse',
-      idToken: 'token',
-      email: 'ahmet@example.com',
-      refreshToken: 'refresh',
-      expiresIn: '3600',
-      localId: 'uid',
-    })
+    signupMock.mockResolvedValue(response)
   })
 
   it('should create', () => {
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     expect(wrapper.find('h1').text()).toBe('Create account')
   })
 
   it('disables submit until the form is valid', async () => {
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     const button = wrapper.find('button[type="submit"]')
 
     expect(button.attributes('disabled')).toBeDefined()
@@ -58,7 +65,7 @@ describe('SignupView', () => {
   })
 
   it('shows a validation message only after the field is touched', async () => {
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     expect(wrapper.text()).not.toContain('Please enter a valid first name!')
 
     await wrapper.find('#firstName').trigger('blur')
@@ -69,38 +76,37 @@ describe('SignupView', () => {
   })
 
   it('rejects an email without a domain', async () => {
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     await wrapper.find('#email').setValue('ahmet@')
     await wrapper.find('#email').trigger('blur')
     expect(wrapper.text()).toContain('Please enter a valid email!')
   })
 
   it('rejects a password without a digit', async () => {
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     await wrapper.find('#password').setValue('secretonly')
     await wrapper.find('#password').trigger('blur')
     expect(wrapper.text()).toContain('Must contain at least one number')
   })
 
-  it('sends the signup request and resets the form on submit', async () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const wrapper = mountSignup()
+  it('signs up, resets the form and navigates to the scanner page', async () => {
+    const { wrapper, router } = mountSignup()
     await fillValidForm(wrapper)
 
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
     expect(signupMock).toHaveBeenCalledWith('ahmet@example.com', 'secret1')
-    expect(log).toHaveBeenCalledWith(expect.objectContaining({ idToken: 'token' }))
+    expect(console.log).toHaveBeenCalledWith(response)
     expect((wrapper.find('#firstName').element as HTMLInputElement).value).toBe('')
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
-    log.mockRestore()
+    expect(router.currentRoute.value.path).toBe('/scanner')
   })
 
   it('shows the spinner instead of the form while the request is pending', async () => {
-    let resolveSignup!: (value: Awaited<ReturnType<typeof signup>>) => void
+    let resolveSignup!: (value: typeof response) => void
     signupMock.mockReturnValue(new Promise((resolve) => (resolveSignup = resolve)))
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     await fillValidForm(wrapper)
 
     await wrapper.find('form').trigger('submit')
@@ -109,24 +115,16 @@ describe('SignupView', () => {
     expect(wrapper.find('.lds-ring').exists()).toBe(true)
     expect(wrapper.find('form').exists()).toBe(false)
 
-    resolveSignup({
-      kind: 'identitytoolkit#SignupNewUserResponse',
-      idToken: 'token',
-      email: 'ahmet@example.com',
-      refreshToken: 'refresh',
-      expiresIn: '3600',
-      localId: 'uid',
-    })
+    resolveSignup(response)
     await flushPromises()
 
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.find('form').exists()).toBe(true)
   })
 
-  it('shows the error message when the signup request fails', async () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  it('shows the error message and stays on the page when the signup fails', async () => {
     signupMock.mockRejectedValue(new Error('This email exists already!'))
-    const wrapper = mountSignup()
+    const { wrapper, router } = mountSignup()
     await fillValidForm(wrapper)
 
     await wrapper.find('form').trigger('submit')
@@ -135,14 +133,13 @@ describe('SignupView', () => {
     expect(wrapper.text()).toContain('This email exists already!')
     expect(wrapper.find('.lds-ring').exists()).toBe(false)
     expect(wrapper.find('form').exists()).toBe(true)
-    expect(log).toHaveBeenCalledWith('This email exists already!')
-    log.mockRestore()
+    expect(console.log).toHaveBeenCalledWith('This email exists already!')
+    expect(router.currentRoute.value.path).not.toBe('/scanner')
   })
 
   it('clears a previous error when submitting again', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
     signupMock.mockRejectedValueOnce(new Error('This email exists already!'))
-    const wrapper = mountSignup()
+    const { wrapper } = mountSignup()
     await fillValidForm(wrapper)
     await wrapper.find('form').trigger('submit')
     await flushPromises()
@@ -153,6 +150,5 @@ describe('SignupView', () => {
     await flushPromises()
 
     expect(wrapper.text()).not.toContain('This email exists already!')
-    vi.restoreAllMocks()
   })
 })

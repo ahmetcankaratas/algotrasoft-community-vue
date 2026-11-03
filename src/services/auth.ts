@@ -8,13 +8,14 @@ export interface AuthResponseData {
   refreshToken: string
   expiresIn: string
   localId: string
+  registered?: boolean
 }
 
 interface AuthErrorBody {
   error?: { message?: string }
 }
 
-const SIGNUP_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp'
+const AUTH_BASE_URL = 'https://identitytoolkit.googleapis.com/v1'
 
 const ERROR_MESSAGES: Record<string, string> = {
   EMAIL_EXISTS: 'This email exists already!',
@@ -30,10 +31,14 @@ function toAuthError(error: unknown): Error {
   return new Error(message ?? UNKNOWN_ERROR_MESSAGE)
 }
 
-export async function signup(email: string, password: string): Promise<AuthResponseData> {
+async function authRequest(
+  endpoint: string,
+  email: string,
+  password: string,
+): Promise<AuthResponseData> {
   try {
     const { data } = await http.post<AuthResponseData>(
-      SIGNUP_URL,
+      `${AUTH_BASE_URL}/${endpoint}`,
       { email, password, returnSecureToken: true },
       { params: { key: import.meta.env.VITE_FIREBASE_API_KEY } },
     )
@@ -41,4 +46,12 @@ export async function signup(email: string, password: string): Promise<AuthRespo
   } catch (error) {
     throw toAuthError(error)
   }
+}
+
+export function signup(email: string, password: string): Promise<AuthResponseData> {
+  return authRequest('accounts:signUp', email, password)
+}
+
+export function login(email: string, password: string): Promise<AuthResponseData> {
+  return authRequest('accounts:signInWithPassword', email, password)
 }

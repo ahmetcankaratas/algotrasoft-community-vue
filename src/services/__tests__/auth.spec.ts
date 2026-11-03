@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 
 import { AxiosError, type AxiosResponse } from 'axios'
-import { signup } from '../auth'
+import { signup, login } from '../auth'
 import { http } from '../http'
 
 vi.mock('../http', () => ({
@@ -41,6 +41,20 @@ describe('signup', () => {
     )
   })
 
+  it('posts the credentials to the Firebase sign-in endpoint', async () => {
+    vi.stubEnv('VITE_FIREBASE_API_KEY', 'test-key')
+    postMock.mockResolvedValue({ data: { idToken: 'token', registered: true } })
+
+    const data = await login('ahmet@example.com', 'secret1')
+
+    expect(data).toMatchObject({ idToken: 'token', registered: true })
+    expect(postMock).toHaveBeenCalledWith(
+      'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword',
+      { email: 'ahmet@example.com', password: 'secret1', returnSecureToken: true },
+      { params: { key: 'test-key' } },
+    )
+  })
+
   it.each([
     ['EMAIL_EXISTS', 'This email exists already!'],
     ['EMAIL_NOT_FOUND', 'This email does not exist!'],
@@ -49,6 +63,14 @@ describe('signup', () => {
     postMock.mockRejectedValue(firebaseError(code))
 
     await expect(signup('ahmet@example.com', 'secret1')).rejects.toThrow(message)
+  })
+
+  it('maps login errors the same way', async () => {
+    postMock.mockRejectedValue(firebaseError('INVALID_PASSWORD'))
+
+    await expect(login('ahmet@example.com', 'wrong1')).rejects.toThrow(
+      'This password is not correct!',
+    )
   })
 
   it('falls back to a generic message for unknown Firebase codes', async () => {
