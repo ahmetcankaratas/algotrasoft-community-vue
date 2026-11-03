@@ -68,6 +68,13 @@ describe('SignupView', () => {
     expect(wrapper.text()).not.toContain('Please enter a valid first name!')
   })
 
+  it('rejects an email without a domain', async () => {
+    const wrapper = mountSignup()
+    await wrapper.find('#email').setValue('ahmet@')
+    await wrapper.find('#email').trigger('blur')
+    expect(wrapper.text()).toContain('Please enter a valid email!')
+  })
+
   it('rejects a password without a digit', async () => {
     const wrapper = mountSignup()
     await wrapper.find('#password').setValue('secretonly')

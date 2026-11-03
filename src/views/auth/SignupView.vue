@@ -105,7 +105,7 @@
                 />
               </div>
               <small v-if="errors.password && touched.password" class="text-red-600"
-                >Must contain at least one number and one letter, and at least 8 or more
+                >Must contain at least one number and one letter, and at least 6 or more
                 characters</small
               >
               <button
@@ -137,8 +137,7 @@ import { RouterLink } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { signup } from '@/services/auth'
-
-const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z]).{6,}/
+import { isEmail, isPassword } from '@/utils/validation'
 
 const emptyForm = () => ({ firstName: '', lastName: '', email: '', password: '' })
 const untouched = () => ({ firstName: false, lastName: false, email: false, password: false })
@@ -152,8 +151,8 @@ const error = ref<string | null>(null)
 const errors = computed(() => ({
   firstName: form.firstName.trim() === '',
   lastName: form.lastName.trim() === '',
-  email: form.email.trim() === '',
-  password: !PASSWORD_PATTERN.test(form.password),
+  email: !isEmail(form.email),
+  password: !isPassword(form.password),
 }))
 
 const isValid = computed(() => !Object.values(errors.value).some(Boolean))

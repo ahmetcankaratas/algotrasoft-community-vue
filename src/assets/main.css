@@ -9,6 +9,16 @@
   --color-darkCyan: hsl(161, 100%, 44%);
   --color-accentBlue: hsl(198, 60%, 50%);
   --color-lightRed: hsl(0, 100%, 63%);
+  --color-primary-50: hsl(161, 100%, 97%);
+  --color-primary-100: hsl(161, 95%, 93%);
+  --color-primary-200: hsl(161, 97%, 87%);
+  --color-primary-300: hsl(161, 96%, 78%);
+  --color-primary-400: hsl(161, 94%, 68%);
+  --color-primary-500: hsl(161, 91%, 60%);
+  --color-primary-600: hsl(161, 83%, 53%);
+  --color-primary-700: hsl(161, 76%, 48%);
+  --color-primary-800: hsl(161, 71%, 40%);
+  --color-primary-900: hsl(161, 64%, 33%);
 
   --font-sans: 'Raleway', sans-serif;
   --font-opensans: 'Open Sans', sans-serif;

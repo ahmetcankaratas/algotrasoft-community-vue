@@ -45,4 +45,14 @@ describe('AppHeader', () => {
     expect(links[3]!.classes()).not.toContain('active')
     expect(links[4]!.classes()).not.toContain('active')
   })
+
+  it('never marks the Sign Up button as active', async () => {
+    await router.push('/auth/signup')
+    const wrapper = mount(AppHeader, { global: { plugins: [router] } })
+    const signUp = wrapper.findAll('a')[4]!
+
+    expect(signUp.text()).toBe('Sign Up')
+    expect(signUp.classes()).not.toContain('active')
+    expect(signUp.classes()).not.toContain('router-link-exact-active')
+  })
 })

@@ -10,6 +10,8 @@
       <RouterLink to="/auth/login" class="hover:text-accentCyan tracking-widest">Login</RouterLink>
       <RouterLink
         to="/auth/signup"
+        active-class=""
+        exact-active-class=""
         class="bg-darkCyan hover:bg-accentCyan rounded-full px-8 py-3 tracking-widest hover:opacity-70"
         >Sign Up</RouterLink
       >
