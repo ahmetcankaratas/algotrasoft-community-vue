@@ -27,16 +27,6 @@ This app is also developed on Angular and React JS with typescript and tailwind.
 - Vitest and Vue Test Utils
 - ESLint, oxlint and Prettier
 
-## **✨ Features**
-
-- Sign up, login, logout and automatic login from the stored session, with automatic logout when the token expires
-- Route guard that keeps the scanner behind authentication
-- Scanner list with name filtering; result cards and their details are fetched lazily as they scroll into view
-- Details page with info rows and bar graphs, including not-found and error states
-- Dark and light theme, persisted in local storage
-- Responsive header with a mobile menu
-- Not-found page for unknown routes
-
 ## 📷 Screenshots
 
 <b>Homepage</b>
@@ -48,6 +38,16 @@ This app is also developed on Angular and React JS with typescript and tailwind.
 <img width="1440" alt="Scanner list" src="https://user-images.githubusercontent.com/53529387/209869386-5f2a2c6c-b267-4a82-b059-1c26304b6a64.png">
 
 <img width="1438" alt="Scanner details" src="https://user-images.githubusercontent.com/53529387/209869403-c0fc9db0-8419-4393-b37e-e0dd5579d997.png">
+
+## **✨ Features**
+
+- Sign up, login, logout and automatic login from the stored session, with automatic logout when the token expires
+- Route guard that keeps the scanner behind authentication
+- Scanner list with name filtering; result cards and their details are fetched lazily as they scroll into view
+- Details page with info rows and bar graphs, including not-found and error states
+- Dark and light theme, persisted in local storage
+- Responsive header with a mobile menu
+- Not-found page for unknown routes
 
 ## **🚀 Getting Started**
 
