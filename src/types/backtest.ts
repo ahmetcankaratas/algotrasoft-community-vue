@@ -1,4 +1,4 @@
-export interface BacktestResponseResult {
+export interface BacktestDetails {
   id: number
   symbol: string
   name: string

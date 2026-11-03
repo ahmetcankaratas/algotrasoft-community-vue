@@ -29,9 +29,9 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import type { MarketResponseResult } from '@/types/market'
+import type { StockDetails } from '@/types/market'
 
 defineProps<{
-  result: MarketResponseResult
+  result: StockDetails
 }>()
 </script>

@@ -3,15 +3,15 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import ResultItem from '../ResultItem.vue'
-import type { MarketResponseResult } from '@/types/market'
+import type { StockDetails } from '@/types/market'
 
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [{ path: '/scanner/:id', component: { template: '<div />' } }],
 })
 
-function mountItem(overrides: Partial<MarketResponseResult> = {}) {
-  const result: MarketResponseResult = {
+function mountItem(overrides: Partial<StockDetails> = {}) {
+  const result: StockDetails = {
     id: 1,
     name: 'Green Plains, Inc.',
     symbol: 'GPRE',

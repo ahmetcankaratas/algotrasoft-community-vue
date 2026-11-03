@@ -18,9 +18,9 @@
 <script setup lang="ts">
 import InfoRow from './InfoRow.vue'
 import BarGraph from './BarGraph.vue'
-import type { BacktestResponseResult } from '@/types/backtest'
+import type { BacktestDetails } from '@/types/backtest'
 
 defineProps<{
-  details: BacktestResponseResult
+  details: BacktestDetails
 }>()
 </script>

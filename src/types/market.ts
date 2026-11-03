@@ -1,4 +1,4 @@
-export interface MarketResponseResult {
+export interface StockDetails {
   id: number
   symbol: string
   name: string
@@ -6,5 +6,5 @@ export interface MarketResponseResult {
 }
 
 export interface MarketResponse {
-  stocks: MarketResponseResult[]
+  stocks: StockDetails[]
 }

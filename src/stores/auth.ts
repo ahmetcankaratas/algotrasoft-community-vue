@@ -2,13 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import * as authApi from '@/services/auth'
 import type { AuthResponseData } from '@/services/auth'
-
-export interface User {
-  email: string
-  id: string
-  token: string
-  tokenExpirationDate: Date
-}
+import type { User } from '@/types/user'
 
 const USER_STORAGE_KEY = 'userData'
 
